@@ -4,7 +4,7 @@ import com.trends.bitcoin.server.services.HistoricalService
 import org.scalatest.FunSuite
 import org.scalatest.mockito.MockitoSugar
 
-class Test extends FunSuite with MockitoSugar {
+class ServiceTests extends FunSuite with MockitoSugar {
 
   val sample = "{\"data\":{\"base\":\"BTC\",\"currency\":\"USD\",\"prices\":[{\"price\":\"6231.21\",\"time\":\"2018-09-09T00:00:00Z\"},{\"price\":\"6362.43\",\"time\":\"2018-09-08T00:00:00Z\"},{\"price\":\"6445.20\",\"time\":\"2018-09-07T00:00:00Z\"},{\"price\":\"6422.41\",\"time\":\"2018-09-06T00:00:00Z\"},{\"price\":\"7126.16\",\"time\":\"2018-09-05T00:00:00Z\"},{\"price\":\"7318.00\",\"time\":\"2018-09-04T00:00:00Z\"},{\"price\":\"7258.19\",\"time\":\"2018-09-03T00:00:00Z\"}]}}"
   test("Test if getting parsed successfully") {
