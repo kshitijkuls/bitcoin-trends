@@ -6,7 +6,7 @@ import java.util.Calendar
 import com.trends.bitcoin.Schema._
 import com.trends.bitcoin.loader.DataLoader
 
-object HistoricalService {
+class HistoricalService(bitcoinData: List[Price]) {
 
   private val simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
 
@@ -18,7 +18,7 @@ object HistoricalService {
     DataLoader.bitcoinData.filter(_.epochTime >= simpleDateFormat.parse(date).getTime)
 
   def getMovingAvgBetweenDates(startDate: String, endDate: String, period: Int): List[MovingPrice] = {
-    val selectedData: List[Price] = DataLoader.bitcoinData.filter(x =>
+    val selectedData: List[Price] = bitcoinData.filter(x =>
       simpleDateFormat.parse(startDate).getTime <= x.epochTime &&
         x.epochTime <= simpleDateFormat.parse(endDate).getTime
     ).sortBy(_.epochTime)
@@ -28,7 +28,7 @@ object HistoricalService {
   }
 
   private def filterDataByWindow(tw: TimeWindow): List[Price] = {
-    DataLoader.bitcoinData.filter(_.epochTime >= prepareEpoch(tw))
+    bitcoinData.filter(_.epochTime >= prepareEpoch(tw))
   }
 
   private def movingAverage(values: List[Double], period: Int): List[Double] = {
@@ -51,4 +51,8 @@ object HistoricalService {
     dd.add(tw.frame, tw.window)
     dd.getTime.getTime
   }
+}
+
+object HistoricalService {
+  def apply(bitcoinData: List[Price]): HistoricalService = new HistoricalService(bitcoinData)
 }
