@@ -16,4 +16,5 @@ object Schema {
 
   case class TimeWindow(frame: Int, window: Int)
 
+  case class ForecastedPrice(date: String, price: Double)
 }

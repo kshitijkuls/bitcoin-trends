@@ -2,31 +2,23 @@ package com.trends.bitcoin.server.services
 
 import java.text.SimpleDateFormat
 import java.util.Calendar
+
 import com.trends.bitcoin.Schema._
-import com.typesafe.config.ConfigFactory
-import org.json4s.{DefaultFormats, _}
-import org.json4s.native.JsonMethods._
+import com.trends.bitcoin.loader.DataLoader
 
-object Service {
+object HistoricalService {
 
-  implicit val formats: DefaultFormats.type = DefaultFormats
-  private val timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
   private val simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
-
-  private val data: String = scala.io.Source.fromURL(ConfigFactory.load.getString("bitcoin.url")).mkString
-  private val bitcoinData: List[Price] = parse(data).extract[BitCoin].data.prices.map(
-    x => Price(x.price.toDouble, x.time, timestampFormat.parse(x.time).getTime)
-  )
 
   lazy val lastWeekMovement: List[Price] = filterDataByWindow(TimeWindow(Calendar.WEEK_OF_MONTH, -1))
 
   lazy val lastMonthMovement: List[Price] = filterDataByWindow(TimeWindow(Calendar.MONTH, -1))
 
   def getPriceMovementByDate(date: String): List[Price] =
-    bitcoinData.filter(_.epochTime >= simpleDateFormat.parse(date).getTime)
+    DataLoader.bitcoinData.filter(_.epochTime >= simpleDateFormat.parse(date).getTime)
 
   def getMovingAvgBetweenDates(startDate: String, endDate: String, period: Int): List[MovingPrice] = {
-    val selectedData: List[Price] = bitcoinData.filter(x =>
+    val selectedData: List[Price] = DataLoader.bitcoinData.filter(x =>
       simpleDateFormat.parse(startDate).getTime <= x.epochTime &&
         x.epochTime <= simpleDateFormat.parse(endDate).getTime
     ).sortBy(_.epochTime)
@@ -36,7 +28,7 @@ object Service {
   }
 
   private def filterDataByWindow(tw: TimeWindow): List[Price] = {
-    bitcoinData.filter(_.epochTime >= prepareEpoch(tw))
+    DataLoader.bitcoinData.filter(_.epochTime >= prepareEpoch(tw))
   }
 
   private def movingAverage(values: List[Double], period: Int): List[Double] = {
