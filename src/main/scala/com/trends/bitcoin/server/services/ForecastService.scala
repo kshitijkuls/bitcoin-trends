@@ -1,17 +1,19 @@
 package com.trends.bitcoin.server.services
 
 import java.time.{ZoneId, ZonedDateTime}
+
 import com.cloudera.sparkts.models.ARIMA
 import com.cloudera.sparkts.{DateTimeIndex, DayFrequency, TimeSeriesRDD}
 import com.trends.bitcoin.Schema.ForecastedPrice
 import com.trends.bitcoin.loader.{DataLoader, SparkEngine}
+import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.mllib.linalg.DenseVector
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.TimestampType
 import org.apache.spark.sql.{Dataset, Row}
 import org.joda.time.DateTime
 
-object ForecastService extends SparkEngine {
+object ForecastService extends SparkEngine with LazyLogging {
 
   import spark.sqlContext.implicits._
 
@@ -20,12 +22,9 @@ object ForecastService extends SparkEngine {
   val priceColumn = "price"
   val predictedColumn = "values"
 
-  def main(args: Array[String]): Unit = {
-    forecast(15).foreach(println)
-  }
-
   def forecast(days: Int): List[ForecastedPrice] = {
 
+    logger.info(s"Forecasting days requested: $days")
     val bitcoinDf = spark.sparkContext.parallelize(DataLoader.bitcoinData).toDF()
       .withColumn(symbolColumn, lit("bitcoin"))
       .withColumn(timeColumn, col(timeColumn) cast TimestampType)
@@ -55,6 +54,8 @@ object ForecastService extends SparkEngine {
   private def dtIndex(bitcoinDf: Dataset[Row]) = {
     val minDate = bitcoinDf.select(min(timeColumn)).collect()(0).getTimestamp(0)
     val maxDate = bitcoinDf.select(max(timeColumn)).collect()(0).getTimestamp(0)
+
+    logger.debug(s"Training data min max dates: $minDate and $maxDate")
 
     val zone = ZoneId.systemDefault()
     val dtIndex = DateTimeIndex.uniformFromInterval(
