@@ -11,6 +11,8 @@ package object routes {
 
   case class MovingAvgRequest(startDate: String, endDate: String, period: Int)
 
+  case class BucketMaxPriceRequest(startDate: String, endDate: String, bucket: Int)
+
   case class ForecastPriceRequest(days: Int)
 
 }

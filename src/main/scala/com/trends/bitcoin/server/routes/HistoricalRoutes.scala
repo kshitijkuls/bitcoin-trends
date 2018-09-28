@@ -36,4 +36,11 @@ trait HistoricalRoutes extends LazyLogging {
       logger.info(s"$movingAvgAPI API called")
       Ok(HistoricalService(DataLoader.bitcoinData).getMovingAvgBetweenDates(req.startDate, req.endDate, req.period))
     }
+
+  private val bucketMaxPriceAPI = baseAPIPath :: "bucket_max_price"
+  val bucketMaxPrice: Endpoint[List[Price]] =
+    post(bucketMaxPriceAPI :: jsonBody[BucketMaxPriceRequest]) { req: BucketMaxPriceRequest =>
+      logger.info(s"$bucketMaxPriceAPI API called")
+      Ok(HistoricalService(DataLoader.bitcoinData).getMaxPriceByBucket(req.startDate, req.endDate, req.bucket))
+    }
 }

@@ -2,7 +2,6 @@ package com.trends.bitcoin.server.services
 
 import java.text.SimpleDateFormat
 import java.util.Calendar
-
 import com.trends.bitcoin.Schema._
 import com.trends.bitcoin.loader.DataLoader
 
@@ -29,6 +28,17 @@ class HistoricalService(bitcoinData: List[Price]) {
 
   private def filterDataByWindow(tw: TimeWindow): List[Price] = {
     bitcoinData.filter(_.epochTime >= prepareEpoch(tw))
+  }
+
+  def getMaxPriceByBucket(startDate: String, endDate: String, bucket: Int): List[Price] = {
+
+    filterDataByStartEndDate(startDate, endDate).grouped(bucket).map(_.maxBy(_.price)).toList
+  }
+
+  def filterDataByStartEndDate(startDate: String, endDate: String): List[Price] = {
+    bitcoinData.filter(x =>
+      (simpleDateFormat.parse(startDate).getTime <= x.epochTime) &&
+      (x.epochTime <= simpleDateFormat.parse(endDate).getTime))
   }
 
   private def movingAverage(values: List[Double], period: Int): List[Double] = {

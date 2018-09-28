@@ -49,4 +49,15 @@ class ServiceTests extends FunSuite with MockitoSugar {
     assert(actual.diff(expected).isEmpty)
     assert(expected.diff(actual).isEmpty)
   }
+
+  test("Historical Service should get return correct set for the start and end date provided by the user") {
+    val actualD = HistoricalService(DataLoader.parseJsonResponse(sample))
+      .filterDataByStartEndDate("2018-09-04", "2018-09-08")
+    actualD.foreach(println)
+    
+    println()
+    val actual = HistoricalService(DataLoader.parseJsonResponse(sample))
+      .getMaxPriceByBucket("2018-09-04", "2018-09-08", 3)
+    actual.foreach(println)
+  }
 }
